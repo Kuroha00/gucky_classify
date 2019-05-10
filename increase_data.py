@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import pandas as pd
+import cv2
 import os
 import sys
 
 from keras.preprocessing.image import load_img, img_to_array
 from keras.preprocessing.image import ImageDataGenerator
-
 
 from utils import make_dir
 
@@ -68,8 +68,89 @@ def main():
 def test():
     """
     kerasを使わずにデータ数を増やす
+    参考 https://qiita.com/bohemian916/items/9630661cd5292240f8c7
     """
+    input_dir = "data/input/gucky/"   # "data/input/gucky/"
+    filelist = os.listdir(input_dir)
+    
+    output_dir = "data/input/gucky_generate_manual/"  # "data/input/gucky_generate/"
+    make_dir(output_dir)
+    
+    # コントラスト調整
+    min_table = 50
+    max_table = 205
+    diff_table = max_table - min_table  # 165
+    LUT_HC = np.arange(256, dtype = 'uint8' )
+    LUT_LC = np.arange(256, dtype = 'uint8' )
+    
+    # ハイコントラストLUT作成
+    for i in range(0, min_table):
+        LUT_HC[i] = 0
+    for i in range(min_table, max_table):
+        LUT_HC[i] = 255 * (i - min_table) / diff_table
+    for i in range(max_table, 255):
+        LUT_HC[i] = 255
+    
+    # ローコントラストLUT作成
+    for i in range(256):
+        LUT_LC[i] = min_table + i * (diff_table) / 255
+    
+    # 平滑化
+    average_squeare = (10,10)
+    
+    # ガウシアン分布によるノイズ
+    mean, sigma = 0, 10
+
+    # Salt&Pepperノイズ
+    s_vs_p = 0.5
+    amount = 0.004
+    
+    
+    for i, file in enumerate(filelist):
+        img = cv2.imread(input_dir + file)  # numpy配列で取得 (128, 128, 3)
+        row, col, ch = img.shape
+        filename = os.path.splitext(file)[0]
+        
+        high_cont_img = cv2.LUT(img, LUT_HC)  # ハイコントラスト
+        cv2.imwrite(output_dir + filename + "_LUT_HC" + ".jpg", high_cont_img)
+        
+        
+        low_cont_img = cv2.LUT(img, LUT_LC)  # ローコントラスト
+        cv2.imwrite(output_dir + filename + "_LUT_LC" + ".jpg", low_cont_img)
+        
+
+        blur_img = cv2.blur(img, average_squeare)  # 平滑化
+        cv2.imwrite(output_dir + filename + "_blur" + ".jpg", blur_img)
+        
+        gauss = np.random.normal(mean, sigma, (row, col, ch))  # (128, 128, 3)
+        gauss = gauss.reshape(row, col, ch)  # reshapeする必要
+        gauss_img = img + gauss  # ガウシアン分布のノイズ
+        cv2.imwrite(output_dir + filename + "_gauss" + ".jpg", gauss_img)
+        
+        
+        # 塩モード
+        sp_img = img.copy()
+        num_salt = np.ceil(amount * img.size * s_vs_p)
+        coords = [np.random.randint(0, i-1 , int(num_salt)) for i in img.shape]
+        sp_img[coords[:-1]] = (255,255,255)
+        
+        # 胡椒モード
+        num_pepper = np.ceil(amount* img.size * (1. - s_vs_p))
+        coords = [np.random.randint(0, i-1 , int(num_pepper)) for i in img.shape]
+        sp_img[coords[:-1]] = (0,0,0)
+        cv2.imwrite(output_dir + filename + "_salt_pepper" + ".jpg", sp_img)
+        
+        
+        # 反転
+        pass
+        
+        # 拡大・縮小
+        pass
+        
+        
+    
 
     
 if __name__ == "__main__":
     main()
+    # test()
