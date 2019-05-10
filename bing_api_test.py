@@ -11,10 +11,7 @@ import sha3
 import os
 import sys
 
-
-def make_dir(path):
-    if not os.path.isdir(path):
-        os.mkdir(path)
+from utils import make_dir
 
 
 def make_correspondence_table(correspondence_table, original_url, hashed_url):
@@ -39,7 +36,7 @@ def make_img_path(save_dir_path, url):
     make_dir(save_img_path)
     
     file_extension = os.path.splitext(url)[-1]  # ファイルの拡張子を取得 ; splitext.py -> ('splitext', '.py')
-    if file_extension.lower() in ('.jpg', '.jpeg', '.gif', '.png', '.bmp'):
+    if file_extension.lower() in ('.jpg', '.jpeg', '.png', '.bmp'):  # 変更:gifを除いた
         encoded_url = url.encode('utf-8') # required encoding for hashed
         hashed_url = hashlib.sha3_256(encoded_url).hexdigest()
         full_path = os.path.join(save_img_path, hashed_url + file_extension.lower())
@@ -78,8 +75,8 @@ if __name__ == "__main__":
     term = sys.argv[1]
     
     make_dir(save_dir_path)
-    num_imgs_required = 100 # Number of images you want. The number to be divisible by 'num_imgs_per_transaction'
-    num_imgs_per_transaction = 30   # default 30, Max 150  1トランザクションで取得できる画像数
+    num_imgs_required = 10000 # Number of images you want. The number to be divisible by 'num_imgs_per_transaction'
+    num_imgs_per_transaction = 150   # default 30, Max 150  1トランザクションで取得できる画像数
     offset_count = math.floor(num_imgs_required / num_imgs_per_transaction)
     
     url_list = []
@@ -93,6 +90,7 @@ if __name__ == "__main__":
     
     url = "https://api.cognitive.microsoft.com/bing/v7.0/images/search"
     for offset in range(offset_count):
+        print("offset: ", offset)
         
         params = {
             "q": term,
@@ -102,6 +100,7 @@ if __name__ == "__main__":
             "imageType":"Photo", 
             "color":"ColorOnly",
         }
+        
         
         try:
             # conn = http.client.HTTPSConnection('api.cognitive.microsoft.com')
@@ -137,7 +136,7 @@ if __name__ == "__main__":
                 # if img_url:
                 #     url_list.append(img_url.group(1))
     
-        
+    
     for url in url_list:
         try:
             img_path = make_img_path(save_dir_path, url)
