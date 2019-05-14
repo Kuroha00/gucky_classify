@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+import numpy as np
 
 import cv2
 
@@ -40,7 +41,7 @@ def face_recognition(path, file, output_folder, output_miss_folder, minNeighbors
             # roiをリサイズしてサイズを統一する
             resize = 128
             roi_resize = cv2.resize(roi_color, (resize, resize))
-                                
+            
             # 保存
             cv2.imwrite(output_folder + filename + ".jpg", roi_resize)
             
@@ -53,3 +54,21 @@ def face_recognition(path, file, output_folder, output_miss_folder, minNeighbors
         cv2.imwrite(output_miss_folder + file, img)
         
         # os.remove(path + file)
+
+
+def make_batchdata(X, y, batch_size=64, shuffle=True, random_seed=None):
+    """
+    バッチサイズのデータを渡す
+    yieldで実装
+    """
+    idx = np.arange(y.shape[0])
+    if shuffle:
+        rng = np.random.RandomState(random_seed)
+        rng.shuffle(idx)
+        X = X[idx]
+        y = y[idx]
+    
+    for i in range(0, X.shape[0], batch_size):
+        yield( X[i:i+batch_size, :], y[i:i+batch_size] )  # 呼ばれるごとに
+
+    
