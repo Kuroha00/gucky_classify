@@ -3,13 +3,13 @@
 tensorflowのlayerAPIを用いて学習を回す
 """
 import numpy as np
-import pandas as pd
+# import pandas as pd
 import os
 import sys
 
 import tensorflow as tf
-# 
-from sklearn.preprocessing import StandardScaler
+
+# from sklearn.preprocessing import StandardScaler
 
 from utils import make_batchdata, make_dir
 
@@ -48,7 +48,7 @@ def main():
     input_shape = h2_pool.get_shape().as_list()
     n_input_units = np.prod(input_shape[1:])
     h3_pool_flat = tf.reshape(h2_pool, shape=[-1, n_input_units])
-    h4 = tf.layers.dense(h3_pool_flat, 1024, activation=tf.nn.relu)
+    h4 = tf.layers.dense(h3_pool_flat, 128, activation=tf.nn.relu)
     h4_drop = tf.layers.dropout(h4, rate=dropout_rate, training=is_train)  # is_train: Trainのときだけ0.5の確率でdropout
     
     # 全結合層　最終層
@@ -90,20 +90,14 @@ def main():
         
         # データロード
         X_train, y_train, _ = np.load(train_path)
-        X_valid, y_valid, _ = np.load(test_path)
+        X_test, y_test, _ = np.load(test_path)
         
-        # エラー
-        # sc = StandardScaler()
-        # X_train_std = sc.fit_transform(X_train)
-        # X_valid = sc.transform(X_valid)
-
         # 小数化
         X_train_std = X_train / 255
-        X_valid_std = X_valid / 255
-        
+        X_test_std = X_test / 255
         
         train_accuracy_list = []
-        valid_accuracy_list = []
+        test_accuracy_list = []
         for epoch in range(1, epoch_num+1):
             batch_gen = make_batchdata(X=X_train_std, y=y_train, batch_size=batch_size, shuffle=True)
             
@@ -120,26 +114,26 @@ def main():
             
             print( "Epoch {}: Training Avg Loss: {}".format(epoch, avg_loss) )
             
+            # print("Training Test")
+            # feed_dict_valid = {"tf_x:0":X_train_std, "tf_y:0":y_train, "is_train:0": False}
+            # train_acc = sess.run("accuracy:0", feed_dict=feed_dict_valid)
+            
+            # train_accuracy_list.append(train_acc)
+            # print("Train Acc: {}".format(train_acc))
+            
+            print("Test")
+            feed_dict_test = {"tf_x:0":X_test_std, "tf_y:0":y_test, "is_train:0": False}
+            test_acc = sess.run("accuracy:0", feed_dict=feed_dict_test)
+            
+            test_accuracy_list.append(test_acc)
+            print("Test Acc: {}".format(test_acc))
             print("\n")
-            print("Training Test")
-            feed_dict_valid = {"tf_x:0":X_train_std, "tf_y:0":y_valid, "is_train:0": False}
-            train_acc = sess.run("accuracy:0", feed_dict=feed_dict_valid)
-            
-            train_accuracy_list.append(train_acc)
-            print("Train Acc: {}".format(train_acc))
-            
-            print("Validation Test")
-            feed_dict_valid = {"tf_x:0":X_valid_std, "tf_y:0":y_valid, "is_train:0": False}
-            valid_acc = sess.run("accuracy:0", feed_dict=feed_dict_valid)
-            
-            valid_accuracy_list.append(valid_acc)
-            print("Validation Acc: {}".format(valid_acc))
-    
-    
-    saver = tf.train.Saver()
-    save_path = os.path.join("./tflayers-model", original_path, data_set)
-    make_dir(save_path)
-    saver.save(sess, os.path.join(save_path, "model.ckpt"), global_step=epoch_num)
+        
+        print("Test Accuracy List: ", test_accuracy_list)
+        saver = tf.train.Saver()
+        save_path = os.path.join("./tflayers-model", original_path, data_set)
+        make_dir(save_path)
+        saver.save(sess, os.path.join(save_path, "model.ckpt"), global_step=epoch_num)
     
 
 if __name__ == "__main__":
