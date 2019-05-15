@@ -4,6 +4,7 @@ tensorflowのlayerAPIを用いて学習を回す
 """
 import numpy as np
 # import pandas as pd
+import matplotlib.pyplot as plt
 import os
 import sys
 
@@ -21,7 +22,7 @@ def main():
     dropout_rate = 0.5
     learning_rate = 1e-5
     epoch_num = 30
-    batch_size = 16
+    batch_size = 32
     
     data_set = input("data set choice(all or keras or manually or only raw): ")
     
@@ -96,8 +97,8 @@ def main():
         X_train_std = X_train / 255
         X_test_std = X_test / 255
         
-        train_accuracy_list = []
-        test_accuracy_list = []
+        train_acc_list = []
+        test_acc_list = []
         for epoch in range(1, epoch_num+1):
             batch_gen = make_batchdata(X=X_train_std, y=y_train, batch_size=batch_size, shuffle=True)
             
@@ -114,22 +115,39 @@ def main():
             
             print( "Epoch {}: Training Avg Loss: {}".format(epoch, avg_loss) )
             
-            # print("Training Test")
-            # feed_dict_valid = {"tf_x:0":X_train_std, "tf_y:0":y_train, "is_train:0": False}
-            # train_acc = sess.run("accuracy:0", feed_dict=feed_dict_valid)
+            print("Train")
+            train_shape = X_train_std.shape[0]
+            data_num = 500
+            tmp_train_acc_list = []
+            for num in range((train_shape//data_num) + 1):
+                start = data_num * num
+                tmp_X_train_std = X_train_std[start: start+data_num, :]
+                tmp_y_train = y_train[start: start+data_num]
+                feed_dict_train = {"tf_x:0":tmp_X_train_std, "tf_y:0":tmp_y_train, "is_train:0": False}
+                tmp_train_acc_list.append( sess.run("accuracy:0", feed_dict=feed_dict_train) * tmp_y_train.shape[0] )
             
-            # train_accuracy_list.append(train_acc)
-            # print("Train Acc: {}".format(train_acc))
+            train_acc  = np.sum(tmp_train_acc_list) / train_shape
+            train_acc_list.append( train_acc )
+            print("Train Acc: {}".format(train_acc))
+            
             
             print("Test")
             feed_dict_test = {"tf_x:0":X_test_std, "tf_y:0":y_test, "is_train:0": False}
             test_acc = sess.run("accuracy:0", feed_dict=feed_dict_test)
             
-            test_accuracy_list.append(test_acc)
+            test_acc_list.append(test_acc)
             print("Test Acc: {}".format(test_acc))
             print("\n")
         
-        print("Test Accuracy List: ", test_accuracy_list)
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        ax.plot(train_acc_list, label="train", color="b")
+        ax.plot(test_acc_list, label="test", ls=":", color="r")
+        plt.legend(loc="best")
+        plt.tight_layout()
+        plt.show()
+        
+        print("Test Accuracy List: ", test_acc_list)
         saver = tf.train.Saver()
         save_path = os.path.join("./tflayers-model", original_path, data_set)
         make_dir(save_path)
