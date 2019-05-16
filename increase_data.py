@@ -43,7 +43,7 @@ def main():
     kerasによるデータを水増し
     参考 https://newtechnologylifestyle.net/keras_imagedatagenerator/
     """
-
+    
     input_dir = "data/input/smile/"   # "data/input/gucky/"
     filelist = os.listdir(input_dir)
     

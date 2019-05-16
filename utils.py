@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+import requests
 import numpy as np
 
-# import cv2
+import cv2
 
 
 def make_dir(path):
@@ -71,4 +72,23 @@ def make_batchdata(X, y, batch_size=64, shuffle=True, random_seed=None):
     for i in range(0, X.shape[0], batch_size):
         yield( X[i:i+batch_size, :], y[i:i+batch_size] )  # 呼ばれるごとに
 
+
+def push_line(message):
+    """
+    LINE通知用関数
+    filename: str型 LINEへの通知の際のメッセージ内容に書き込んだファイル名を入れている
+    """
+    url = "https://notify-api.line.me/api/notify"   # LINE notify url
+    token = "access token"   # アクセストークン
     
+    # 画像もLINEで送る job.pyと同じディレクトリにpictureディレクトリを置いている
+    folderpath = "./dog_picture/"
+    pic_list = os.listdir(folderpath)
+    n = np.random.randint(0, len(pic_list))
+    
+    headers = {"Authorization" : "Bearer " + token}
+    # message = filename + " write"
+    payload = {"message": message}
+    files = {"imageFile": open(folderpath + pic_list[n], "rb")}
+    
+    r = requests.post(url, headers=headers, params=payload, files=files)

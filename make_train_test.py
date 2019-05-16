@@ -35,7 +35,7 @@ def main():
         for j, folder in enumerate(folder_list):
             print(folder)
             filelist = os.listdir(folder)
-            if j+1 < tmp:
+            if j+1 <= tmp:
                 true_val = 1
             else:
                 true_val = 0

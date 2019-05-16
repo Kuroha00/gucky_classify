@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-tensorflowのlayerAPIを用いて学習を回す
+学習済みモデルに(128, 128)の画像データを入力して確率を返すスクリプト
 """
 import numpy as np
 # import pandas as pd
@@ -10,7 +10,34 @@ import sys
 
 import tensorflow as tf
 
-from utils import make_batchdata, make_dir, push_line
+from utils import make_dir
+
+
+def test():
+    test_path = "./data/test_sample/"
+    
+    X = 0
+    X_std = X / 255
+    X_std = X_std.astype(np.float32)
+    
+    epoch_num = input("previous epoch num: ")  # 前回のモデルのエポック数    
+    data_set = input("data set choice(all or keras or manually or only raw): ")
+    with tf.Session() as sess:
+        saver = tf.train.Saver()
+        
+        if not epoch_num == "":
+            load_path = os.path.join("./tflayers-model", data_set)
+            saver.restore(sess, os.path.join(load_path, 'model.ckpt-{}'.format(epoch_num) ))
+        else:
+            raise ValueError("epoch num")
+        
+        
+        
+        
+    
+
+
+
 
 
 def main():
@@ -89,15 +116,15 @@ def main():
         else:
             raise ValueError
         
-        
         saver = tf.train.Saver()
+        
         # 空じゃなかったら読み込み
         if not previous_epoch_num == "":
             load_path = os.path.join("./tflayers-model", data_set)
             saver.restore(sess, os.path.join(load_path, 'model.ckpt-%d' % previous_epoch_num))
         else:
             sess.run(init)
-            # pass
+        
         
         # データロード
         X_train, y_train, _ = np.load(train_path)
@@ -120,8 +147,10 @@ def main():
                     print(i)
                 
                 feed_dict_train = {"tf_x:0": batch_x, "tf_y:0":batch_y, "is_train:0": True}
+                
                 loss_tmp, _ = sess.run(["cross_entropy_loss:0", "train_op"], feed_dict=feed_dict_train)  # loss_tmpがlist
                 avg_loss += loss_tmp
+            
             
             print( "Epoch {}: Training Avg Loss: {}".format(epoch, avg_loss) )
             
@@ -148,13 +177,6 @@ def main():
             test_acc_list.append(test_acc)
             print("Test Acc: {}".format(test_acc))
             print("\n")
-            if epoch==1:
-                # line 送信
-                push_line(message="finish epoch 1")
-        
-        
-        # line送信
-        push_line(message="finish {} epoch".format(epoch_num))
         
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -164,12 +186,12 @@ def main():
         plt.tight_layout()
         plt.show()
         
-        
         print("Test Accuracy List: ", test_acc_list)
         save_path = os.path.join("./tflayers-model", data_set)
         make_dir(save_path)
-        saver.save(sess, os.path.join(save_path, "model.ckpt"), global_step=previous_epoch_num)
+        saver.save(sess, os.path.join(save_path, "model.ckpt"), global_step=epoch_num)
         
 
 if __name__ == "__main__":
-    main()
+    # main()
+    test()
