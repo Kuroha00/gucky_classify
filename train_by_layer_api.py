@@ -19,7 +19,7 @@ def main():
     
     dropout_rate = 0.5
     learning_rate = 1e-5
-    previous_epoch_num = input("previous epoch num: ")  # 前回のモデルのエポック数
+    previous_epoch_num = int( input("previous epoch num: ") )  # 前回のモデルのエポック数
     epoch_num = 30  # 今回の学習時のエポック数
     batch_size = 32
     
@@ -151,7 +151,6 @@ def main():
                 try: push_line(message="finish epoch 1")
                 except: pass
         
-        
         # Line送信
         try: push_line(message="finish {} epoch".format(epoch_num))
         except: pass
@@ -167,7 +166,7 @@ def main():
         print("Test Accuracy List: ", test_acc_list)
         save_path = os.path.join("./tflayers-model", data_set)
         make_dir(save_path)
-        saver.save(sess, os.path.join(save_path, "model.ckpt"), global_step=previous_epoch_num)
+        saver.save(sess, os.path.join(save_path, "model.ckpt"), global_step=previous_epoch_num+epoch_num)
         
 
 if __name__ == "__main__":

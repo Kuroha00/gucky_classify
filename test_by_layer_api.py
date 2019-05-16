@@ -47,7 +47,6 @@ def prediction(X, epoch_num, data_set):
     X_std = X / 255
     X_std = X_std.astype(np.float32)
     
-
     with tf.Session() as sess:
         saver = tf.train.Saver()
         
