@@ -93,7 +93,7 @@ def main():
         # 空じゃなかったら読み込み
         if not previous_epoch_num == "":
             load_path = os.path.join("./tflayers-model", data_set)
-            saver.restore(sess, os.path.join(load_path, 'model.ckpt-%d' % previous_epoch_num))
+            saver.restore(sess, os.path.join(load_path, 'model.ckpt-%d' % previous_epoch_num))    
         else:
             sess.run(init)
             # pass
@@ -126,14 +126,19 @@ def main():
             
             print("Train")
             train_shape = X_train_std.shape[0]
-            data_num = 100
+            data_num = 50
             tmp_train_acc_list = []
-            for num in range((train_shape//data_num) + 1):
-                start = data_num * num
-                tmp_X_train_std = X_train_std[start: start+data_num, :]
-                tmp_y_train = y_train[start: start+data_num]
-                feed_dict_train = {"tf_x:0":tmp_X_train_std, "tf_y:0":tmp_y_train, "is_train:0": False}
-                tmp_train_acc_list.append( sess.run("accuracy:0", feed_dict=feed_dict_train) * tmp_y_train.shape[0] )
+            batch_gen = make_batchdata(X=X_train_std, y=y_train, batch_size=data_num, shuffle=False)
+            for i, (X_tmp, y_tmp) in enumerate(batch_gen):
+                feed_dict_train = {"tf_x:0":X_tmp, "tf_y:0":y_tmp, "is_train:0":False}
+                tmp_train_acc_list.append( sess.run("accuracy:0", feed_dict=feed_dict_train) * y_tmp.shape[0] )
+            
+            # for num in range((train_shape//data_num) + 1):
+            #     start = data_num * num
+            #     tmp_X_train_std = X_train_std[start: start+data_num, :]
+            #     tmp_y_train = y_train[start: start+data_num]
+            #     feed_dict_train = {"tf_x:0":tmp_X_train_std, "tf_y:0":tmp_y_train, "is_train:0": False}
+            #     tmp_train_acc_list.append( sess.run("accuracy:0", feed_dict=feed_dict_train) * tmp_y_train.shape[0] )
             
             train_acc  = np.sum(tmp_train_acc_list) / train_shape
             train_acc_list.append( train_acc )
@@ -143,20 +148,22 @@ def main():
             print("Test")
             test_shape = X_test_std.shape[0]
             tmp_test_acc_list = []
-            for num in range((test_shape//data_num) + 1):
-                start = data_num * num
-                tmp_X_test_std = X_test_std[start: start+data_num, :]
-                tmp_y_test = y_test[start: start+data_num]
-                feed_dict_test = {"tf_x:0":tmp_X_test_std, "tf_y:0":tmp_y_test, "is_train:0": False}
-                tmp_test_acc_list.append( sess.run("accuracy:0", feed_dict=feed_dict_test) * tmp_y_test.shape[0] )
+            batch_gen = make_batchdata(X=X_test_std, y=y_test, batch_size=data_num, shuffle=False)
+            for i, (X_tmp, y_tmp) in enumerate(batch_gen):
+                feed_dict_test = {"tf_x:0":X_tmp, "tf_y:0":y_tmp, "is_train:0":False}
+                tmp_test_acc_list.append( sess.run("accuracy:0", feed_dict=feed_dict_test) * y_tmp.shape[0] )
+            
+            # for num in range((test_shape//data_num) + 1):
+            #     start = data_num * num
+            #     tmp_X_test_std = X_test_std[start: start+data_num, :]
+            #     tmp_y_test = y_test[start: start+data_num]
+            #     feed_dict_test = {"tf_x:0":tmp_X_test_std, "tf_y:0":tmp_y_test, "is_train:0": False}
+            #     tmp_test_acc_list.append( sess.run("accuracy:0", feed_dict=feed_dict_test) * tmp_y_test.shape[0] )
             
             test_acc  = np.sum(tmp_test_acc_list) / test_shape
             test_acc_list.append( test_acc )
             print("Test Acc: {}".format(test_acc))
             
-            feed_dict_test = {"tf_x:0":X_test_std, "tf_y:0":y_test, "is_train:0": False}
-            test_acc = sess.run("accuracy:0", feed_dict=feed_dict_test)
-            print("\n")
             
             if epoch==1:
                 try: push_line(message="finish epoch 1") # Line 送信
