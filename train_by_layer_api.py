@@ -163,7 +163,7 @@ def main():
             test_acc  = np.sum(tmp_test_acc_list) / test_shape
             test_acc_list.append( test_acc )
             print("Test Acc: {}".format(test_acc))
-            
+            print("\n")
             
             if epoch==1:
                 try: push_line(message="finish epoch 1") # Line 送信
