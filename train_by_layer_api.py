@@ -20,8 +20,8 @@ def main():
     dropout_rate = 0.5
     learning_rate = 1e-5
     previous_epoch_num = int( input("previous epoch num: ") )  # 前回のモデルのエポック数
-    epoch_num = 30  # 今回の学習時のエポック数
-    batch_size = 32
+    epoch_num = 10  # 今回の学習時のエポック数
+    batch_size = 16
     
     data_set = input("data set choice(all or keras or manually or only raw): ")
     
@@ -126,7 +126,7 @@ def main():
             
             print("Train")
             train_shape = X_train_std.shape[0]
-            data_num = 500
+            data_num = 100
             tmp_train_acc_list = []
             for num in range((train_shape//data_num) + 1):
                 start = data_num * num
