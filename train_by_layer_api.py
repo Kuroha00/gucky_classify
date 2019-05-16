@@ -52,7 +52,7 @@ def main():
     h4_drop = tf.layers.dropout(h4, rate=dropout_rate, training=is_train)  # is_train: Trainのときだけ0.5の確率でdropout
     
     # 全結合層　最終層
-    h5 = tf.layers.dense(h4_drop, 2, activation=None) # TODO 
+    h5 = tf.layers.dense(h4_drop, 2, activation=None)  # Noneの場合 線形になる
     
     # 損失
     loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=h5, labels=tf_y_onehot), name="cross_entropy_loss")
@@ -61,10 +61,9 @@ def main():
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(loss, name="train_op")
     
     # evaluation
-    probabilities = tf.nn.softmax(h5)
+    probabilities = tf.nn.softmax(h5, name="probabilities")
     correct = tf.equal(tf.cast( tf.argmax(h5, axis=1), tf.int32), tf_y)  # tf.cast: 型変換
     accuracy = tf.reduce_mean(tf.cast(correct, tf.float32), name="accuracy")
-    
     
     # 初期化
     init = tf.global_variables_initializer()
@@ -140,7 +139,6 @@ def main():
             train_acc_list.append( train_acc )
             print("Train Acc: {}".format(train_acc))
             
-            
             print("Test")
             feed_dict_test = {"tf_x:0":X_test_std, "tf_y:0":y_test, "is_train:0": False}
             test_acc = sess.run("accuracy:0", feed_dict=feed_dict_test)
@@ -149,12 +147,14 @@ def main():
             print("Test Acc: {}".format(test_acc))
             print("\n")
             if epoch==1:
-                # line 送信
-                push_line(message="finish epoch 1")
+                # Line 送信
+                try: push_line(message="finish epoch 1")
+                except: pass
         
         
-        # line送信
-        push_line(message="finish {} epoch".format(epoch_num))
+        # Line送信
+        try: push_line(message="finish {} epoch".format(epoch_num))
+        except: pass
         
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -163,7 +163,6 @@ def main():
         plt.legend(loc="best")
         plt.tight_layout()
         plt.show()
-        
         
         print("Test Accuracy List: ", test_acc_list)
         save_path = os.path.join("./tflayers-model", data_set)

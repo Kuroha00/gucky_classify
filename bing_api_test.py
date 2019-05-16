@@ -81,11 +81,13 @@ if __name__ == "__main__":
     
     url_list = []
     correspondence_table = {}
-    
+    f = open("azure_key.txt")
+    subscription_key = f.read()
+    f.close()
     headers = {
         # Request headers
         'Content-Type': 'multipart/form-data',
-        'Ocp-Apim-Subscription-Key': 'azure subscription key',
+        'Ocp-Apim-Subscription-Key': subscription_key,
     }
     
     url = "https://api.cognitive.microsoft.com/bing/v7.0/images/search"

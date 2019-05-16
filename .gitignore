@@ -2,4 +2,7 @@ bing_api_test/
 data/
 img_sample/
 haarcascades/
+tflayers-model/
+dog_picture/
 azure_key.txt
+line_key.txt
