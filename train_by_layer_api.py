@@ -139,20 +139,31 @@ def main():
             train_acc_list.append( train_acc )
             print("Train Acc: {}".format(train_acc))
             
+            
             print("Test")
+            test_shape = X_test_std.shape[0]
+            data_num = 100
+            tmp_test_acc_list = []
+            for num in range((test_shape//data_num) + 1):
+                start = data_num * num
+                tmp_X_test_std = X_test_std[start: start+data_num, :]
+                tmp_y_test = y_test[start: start+data_num]
+                feed_dict_test = {"tf_x:0":tmp_X_test_std, "tf_y:0":tmp_y_test, "is_train:0": False}
+                tmp_test_acc_list.append( sess.run("accuracy:0", feed_dict=feed_dict_test) * tmp_y_test.shape[0] )
+            
+            test_acc  = np.sum(tmp_test_acc_list) / test_shape
+            test_acc_list.append( test_acc )
+            print("Test Acc: {}".format(test_acc))
+            
             feed_dict_test = {"tf_x:0":X_test_std, "tf_y:0":y_test, "is_train:0": False}
             test_acc = sess.run("accuracy:0", feed_dict=feed_dict_test)
-            
-            test_acc_list.append(test_acc)
-            print("Test Acc: {}".format(test_acc))
             print("\n")
+            
             if epoch==1:
-                # Line 送信
-                try: push_line(message="finish epoch 1")
+                try: push_line(message="finish epoch 1") # Line 送信
                 except: pass
         
-        # Line送信
-        try: push_line(message="finish {} epoch".format(epoch_num))
+        try: push_line(message="finish {} epoch".format(epoch_num))  # Line送信
         except: pass
         
         fig = plt.figure()
