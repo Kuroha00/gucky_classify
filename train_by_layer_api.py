@@ -142,7 +142,6 @@ def main():
             
             print("Test")
             test_shape = X_test_std.shape[0]
-            data_num = 100
             tmp_test_acc_list = []
             for num in range((test_shape//data_num) + 1):
                 start = data_num * num
