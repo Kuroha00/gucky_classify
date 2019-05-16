@@ -114,7 +114,6 @@ def push_line(message):
     f = open("line_key.txt")
     token = f.read()
     f.close()
-    token = "u8sR52QyZ9k34UCoxIpzBeTP1QT4DfTtO7S2doPJYQI"   # アクセストークン
     
     # 画像もLINEで送る job.pyと同じディレクトリにpictureディレクトリを置いている
     folderpath = "./dog_picture/"
@@ -122,7 +121,6 @@ def push_line(message):
     n = np.random.randint(0, len(pic_list))
     
     headers = {"Authorization" : "Bearer " + token}
-    # message = filename + " write"
     payload = {"message": message}
     files = {"imageFile": open(folderpath + pic_list[n], "rb")}
     
