@@ -176,6 +176,7 @@ def main():
         ax = fig.add_subplot(1,1,1)
         ax.plot(train_acc_list, label="train", color="b")
         ax.plot(test_acc_list, label="test", ls=":", color="r")
+        ax.set_ylim(0,1)
         plt.legend(loc="best")
         plt.tight_layout()
         plt.show()
