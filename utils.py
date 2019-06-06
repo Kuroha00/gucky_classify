@@ -60,6 +60,7 @@ def face_recognition(path, file, output_folder, output_miss_folder, minNeighbors
 def face_recognition_and_reshape(filename, face_cascade, minNeighbors=3, minSize=(30,30), resize=128):
     """
     顔認識と画像サイズ変換を行って(resize, resize)の画像データを返す．
+    新しい画像で分類結果を返すときに必要．
     filename: str 画像パス（ファイル名も含む）
     face_cascade: cv2.CascadeClassifierのようなもの
     minNeighbors: int   https://blog.mudatobunka.org/entry/2016/10/03/014520 参照
@@ -79,6 +80,10 @@ def face_recognition_and_reshape(filename, face_cascade, minNeighbors=3, minSize
         )
     
     faces = face_cascade.detectMultiScale(gray)  # (x, y, w, h)
+    
+    if faces == ():
+        return None
+    
     for (x, y, w, h) in faces:
         # 顔部分取得
         roi_color = img[y:y + h, x:x + w]
