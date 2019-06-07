@@ -49,7 +49,7 @@ def face_recognition(path, file, output_folder, output_miss_folder, minNeighbors
             # 元の画像消去
             # os.remove(path+file)
     
-    # 顔検出失敗
+    # 顔検出失敗時
     else:
         # print("len: {}, {}".format(len(faces), file))
         cv2.imwrite(output_miss_folder + file, img)

@@ -15,9 +15,10 @@ from utils import make_batchdata, make_dir, push_line
 class CNN():
     
     def __init__(self, batch_size=16, learning_rate=1e-5, dropout_rate=0.5):
+        
         self.batch_size = batch_size
         self.learning_rate = learning_rate
-        self.dropout_rate = dropout_rate  # 学習時にのみドロップアウトする
+        self.dropout_rate = dropout_rate  # 学習時にのみドロップアウト
         
         # グラフ定義
         g = tf.Graph()
@@ -30,6 +31,7 @@ class CNN():
     
     
     def build(self):
+        # CNN層の構成，ロスなど定義
         
         # placeholder: データは未定のままグラフを構築して，具体的な値は実行するときに与えられる．
         tf_x = tf.placeholder(tf.float32, [None, 128, 128, 3], name="tf_x")
@@ -48,8 +50,8 @@ class CNN():
         # h3_pool = tf.layers.max_pooling2d(conv_h3, pool_size=(2,2), strides=(2,2))
         
         # 全結合層
-        input_shape = h2_pool.get_shape().as_list()
-        n_input_units = np.prod(input_shape[1:])
+        input_shape = h2_pool.get_shape().as_list()  # 
+        n_input_units = np.prod(input_shape[1:])  # 
         h3_pool_flat = tf.reshape(h2_pool, shape=[-1, n_input_units])
         h4 = tf.layers.dense(h3_pool_flat, 128, activation=tf.nn.relu)
         h4_drop = tf.layers.dropout(h4, rate=self.dropout_rate, training=is_train)  # is_train: Trainのときだけ0.5の確率でdropout
@@ -96,7 +98,7 @@ class CNN():
             
             print("Train")
             train_shape = X_train_std.shape[0]
-            data_num = 50  # 学習後に予測結果を出すためのデータ数
+            data_num = 50  # 学習後に予測結果を出すときのバッチデータ数
             tmp_train_acc_list = []
             batch_gen = make_batchdata(X=X_train_std, y=y_train, batch_size=data_num, shuffle=True)
             for i, (X_tmp, y_tmp) in enumerate(batch_gen):
@@ -118,7 +120,7 @@ class CNN():
             
             valid_acc  = np.sum(tmp_valid_acc_list) / valid_shape
             valid_acc_list.append( valid_acc )
-            print("Test Acc: {}".format( valid_acc ))
+            print("Valid Acc: {}".format( valid_acc ))
             print("\n")
             
             if epoch==1:
@@ -137,6 +139,7 @@ class CNN():
         plt.legend(loc="best")
         plt.tight_layout()
         # plt.show()
+        
         return fig
     
     

@@ -35,17 +35,17 @@ def train():
         raise ValueError
     
     X_train, y_train, _ = np.load(train_path)
-    X_valid, y_valid, _ = np.load(test_path)
+    X_test, y_test, _ = np.load(test_path)
     
     # 小数化
     X_train_std = X_train / 255
-    X_valid_std = X_valid / 255
+    X_test_std = X_test / 255
     X_train_std = X_train_std.astype(np.float32)
-    X_valid_std = X_valid_std.astype(np.float32)
+    X_test_std = X_test_std.astype(np.float32)
     
     model = CNN()
     model.load(previous_epoch_num=previous_epoch_num, data_set=data_set)
-    fig = model.train(train_data=(X_train_std, y_train), valid_data=(X_valid_std, y_valid), train_epoch_num=train_epoch_num, initialize=False)
+    fig = model.train(train_data=(X_train_std, y_train), valid_data=(X_test_std, y_test), train_epoch_num=train_epoch_num, initialize=False)
     model.save(epoch=previous_epoch_num+train_epoch_num, data_set=data_set)
     
     plt.show()
