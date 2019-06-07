@@ -103,7 +103,7 @@ if __name__ == "__main__":
    x = face_recognition_and_reshape(filename=test_img, face_cascade=face_cascade)
    
    grad_cam = grad_cam(input_model=model, x=x, layer_name="activation_2")
-   
+   # 
    # encoded = base64.b64encode(grad_cam.tostring())
    # img = base64.b64decode(encoded)
    # img = np.frombuffer(img, dtype=np.uint8)
