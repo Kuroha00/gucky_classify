@@ -16,6 +16,7 @@ from keras.layers.pooling import MaxPool2D
 from keras.optimizers import Adam
 from keras.layers.core import Dense, Activation, Dropout, Flatten
 from keras.utils import np_utils  # One-Hot表現をするために使用
+from keras.models import load_model
 
 from utils import make_batchdata, make_dir, push_line
 
@@ -89,7 +90,7 @@ def main():
         # モデルの読み込み
         if not previous_epoch=="":
             print("Load model")
-            model = keras.models.load_model(model_path+'model_{}.h5'.format(previous_epoch), compile=True)
+            model = load_model(model_path+'model_{}.h5'.format(previous_epoch), compile=True)
         else:
             model = build_model(output_class=output_class)
         

@@ -23,7 +23,6 @@ def test():
     input_data = os.listdir(test_path)
     face_cascade = cv2.CascadeClassifier('haarcascades/haarcascade_frontalface_alt2.xml')
     
-    
     X_all = []
     for file in input_data:
         print("file: ", file)
