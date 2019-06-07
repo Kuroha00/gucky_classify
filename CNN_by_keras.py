@@ -56,6 +56,7 @@ def main():
     data_set = input("data set choice(all or keras or manually or only raw): ")
     path = "./keras-model"
     model_path = os.path.join(path, data_set, "")
+    make_dir(model_path)
     
     original_path = "data/input"
     if data_set == "all":
