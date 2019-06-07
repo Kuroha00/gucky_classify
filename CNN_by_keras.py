@@ -87,7 +87,7 @@ def main():
     try:
         # モデルの読み込み
         if not previous_epoch=="":
-            print("load model")
+            print("Load model")
             model = keras.models.load_model(model_path+'model_{}.h5'.format(previous_epoch), compile=True)
         else:
             model = build_model(output_class=output_class)
