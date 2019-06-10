@@ -21,19 +21,23 @@ from keras.models import load_model
 from utils import make_batchdata, make_dir, push_line
 
 
-def build_model(dropout=0.5, output_class=2, learning_rate=1e-4):
+def build_model(dropout=0.8, output_class=2, learning_rate=1e-4):
     # kerasによるモデル構築
     model = Sequential()
     
     model.add(Conv2D(32, 3, input_shape=(128, 128, 3)))
     model.add(Activation('relu'))
-    model.add(MaxPool2D(pool_size=(2,2)))
+    model.add(MaxPool2D(pool_size=(3,3)))
     
-    model.add(Conv2D(64, 3))
+    model.add(Conv2D(64, 3))  # 数値の意味　1つ目は層の数，2つ目は？
     model.add(Activation('relu'))
-    model.add(MaxPool2D(pool_size=(2,2)))
+    model.add(MaxPool2D(pool_size=(3,3)))
     
-    model.add( Flatten() )  # 入力を平滑化　(None, 64, 32, 32)  ->  (None, 65536)
+    model.add(Conv2D(128, 3))
+    model.add(Activation('relu'))
+    model.add(MaxPool2D(pool_size=(3,3)))
+    
+    model.add( Flatten() )  # 入力を平滑化　(None, 64, 64, 32)  ->  (None, 131072)
     model.add( Dense(128) )  # 全結合ネットワーク
     model.add( Activation('relu') )
     model.add( Dropout(dropout) )
@@ -90,7 +94,7 @@ def main():
         # モデルの読み込み
         if not previous_epoch=="":
             print("Load model")
-            model = load_model(model_path+'model_{}.h5'.format(previous_epoch), compile=True)
+            model = load_model(model_path+'model_3conv_{}.h5'.format(previous_epoch), compile=True)
         else:
             model = build_model(output_class=output_class)
         
@@ -108,7 +112,7 @@ def main():
         else:
             save_epoch = int(train_epoch)
         
-        save_model = model_path + "model_{}.h5".format(save_epoch)        
+        save_model = model_path + "model_3conv_{}.h5".format(save_epoch)        
         model.save(save_model)
         
         # LINE出力

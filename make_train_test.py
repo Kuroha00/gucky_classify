@@ -20,7 +20,7 @@ def main():
         ]
     
     output_filename = [
-        ("train_only_raw.npy",       "test_only_raw.npy"),
+        ("train_only_raw.npy",           "test_only_raw.npy"),
         ("train_generated_by_keras.npy", "test_generated_by_keras.npy"),
         ("train_generated_manually.npy", "test_generated_manually.npy"),
         ("train_all_data.npy",           "test_all_data.npy"),
@@ -30,8 +30,7 @@ def main():
         print(folder_list)
         tmp = len(folder_list) // 2
         
-        X = []
-        y = []
+        X, y = [], []
         for j, folder in enumerate(folder_list):
             print(folder)
             filelist = os.listdir(folder)
@@ -45,7 +44,6 @@ def main():
                 X.append(img)
                 y.append(true_val)
         
-        # numpy配列
         X = np.array(X)
         print("X shape: ", X.shape)
         y = np.array(y)
@@ -57,8 +55,7 @@ def main():
         
         test = (X_test, y_test, np.array([]))
         np.save("data/input/" + output_filename[i][1], test)
-
-
-        
+    
+    
 if __name__ == "__main__":
     main()
